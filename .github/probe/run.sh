@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 mkdir -p out
-npm install --no-audit --no-fund > out/install.txt 2>&1; echo "exit $?" >> out/install.txt
+{ node --version; npm --version; } > out/install.txt
+npm install --no-audit --no-fund >> out/install.txt 2>&1; echo "exit $?" >> out/install.txt
+tail -120 $(ls -t ~/.npm/_logs/*debug*.log | head -1) > out/npmlog.txt 2>&1
 npx svelte-kit sync > out/sync.txt 2>&1; echo "exit $?" >> out/sync.txt
 cp -r src src.orig
 npx prettier --write . > out/prettier.txt 2>&1; echo "exit $?" >> out/prettier.txt
