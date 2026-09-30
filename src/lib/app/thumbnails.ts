@@ -41,15 +41,20 @@ function paintArtistPreview(artist: ArtistId): HTMLCanvasElement {
 
 /** Small representative prints for the artist picker, plus a collage for "Any artist". */
 export function artistPreviews(): Record<ArtistId | 'any', string> {
-	const canvases = Object.fromEntries(ARTIST_IDS.map((id) => [id, paintArtistPreview(id)])) as Record<
-		ArtistId,
-		HTMLCanvasElement
-	>;
+	const canvases = Object.fromEntries(
+		ARTIST_IDS.map((id) => [id, paintArtistPreview(id)])
+	) as Record<ArtistId, HTMLCanvasElement>;
 	const collage = previewCanvas();
 	const ctx = collage.getContext('2d')!;
 	const { width, height } = collage;
 	COLLAGE.forEach((id, i) =>
-		ctx.drawImage(canvases[id], ((i % 2) * width) / 2, (Math.floor(i / 2) * height) / 2, width / 2, height / 2)
+		ctx.drawImage(
+			canvases[id],
+			((i % 2) * width) / 2,
+			(Math.floor(i / 2) * height) / 2,
+			width / 2,
+			height / 2
+		)
 	);
 	const urls = Object.fromEntries(
 		ARTIST_IDS.map((id) => [id, canvases[id].toDataURL('image/png')])

@@ -21,7 +21,13 @@ const MOTIFS = [
 type Motif = (typeof MOTIFS)[number];
 type Arrangement = 'checker' | 'rows' | 'columns' | 'diagonal';
 
-function paintMotif(ctx: CanvasRenderingContext2D, motif: Motif, size: number, color: string, inner: string) {
+function paintMotif(
+	ctx: CanvasRenderingContext2D,
+	motif: Motif,
+	size: number,
+	color: string,
+	inner: string
+) {
 	const h = size / 2;
 	ctx.fillStyle = color;
 	ctx.strokeStyle = color;
@@ -138,7 +144,8 @@ function repeatPattern(c: Composer): void {
 		c.add(null, (ctx) => {
 			ctx.fillStyle = P.paper2;
 			for (let j = 0; j < rows; j++)
-				for (let i = 0; i < columns; i++) if ((i + j) % 2) ctx.fillRect(i * cell, j * cell, cell, cell);
+				for (let i = 0; i < columns; i++)
+					if ((i + j) % 2) ctx.fillRect(i * cell, j * cell, cell, cell);
 		});
 	}
 
@@ -154,7 +161,8 @@ function repeatPattern(c: Composer): void {
 				} else {
 					ctx.beginPath();
 					ctx.moveTo(0, y + cell * 0.75);
-					for (let x = 0, k = 0; x <= W + cell; x += cell / 2, k++) ctx.lineTo(x, y + cell * (k % 2 ? 0.25 : 0.75));
+					for (let x = 0, k = 0; x <= W + cell; x += cell / 2, k++)
+						ctx.lineTo(x, y + cell * (k % 2 ? 0.25 : 0.75));
 					ctx.lineTo(W + cell, y + cell);
 					ctx.lineTo(0, y + cell);
 					ctx.closePath();
@@ -211,14 +219,21 @@ function sampleCard(c: Composer, number: number): void {
 		ctx.fillRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight);
 		ctx.strokeStyle = P.ink;
 		ctx.lineWidth = S * 0.0018;
-		ctx.strokeRect(-cardWidth / 2 + u * 0.06, -cardHeight / 2 + u * 0.06, cardWidth - u * 0.12, cardHeight - u * 0.12);
+		ctx.strokeRect(
+			-cardWidth / 2 + u * 0.06,
+			-cardHeight / 2 + u * 0.06,
+			cardWidth - u * 0.12,
+			cardHeight - u * 0.12
+		);
 		ctx.fillStyle = P.ink;
 		ctx.textBaseline = 'top';
 		ctx.font = `${u * 0.15}px ${DISPLAY_FONT}`;
 		ctx.fillText('ОБРАЗЕЦ № ' + number, -cardWidth / 2 + u * 0.14, -cardHeight / 2 + u * 0.15);
 		ctx.font = `600 ${u * 0.085}px ${BODY_FONT}`;
 		setLetterSpacing(ctx, u * 0.012);
-		lines.forEach((line, k) => ctx.fillText(line, -cardWidth / 2 + u * 0.14, -cardHeight / 2 + u * (0.42 + k * 0.13)));
+		lines.forEach((line, k) =>
+			ctx.fillText(line, -cardWidth / 2 + u * 0.14, -cardHeight / 2 + u * (0.42 + k * 0.13))
+		);
 
 		const stampX = cardWidth / 2 - u * 0.32;
 		const stampY = cardHeight / 2 - u * 0.3;

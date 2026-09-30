@@ -22,7 +22,15 @@ function handCut(c: Composer, length: number, thickness: number): Point[] {
 	];
 }
 
-function plane(c: Composer, color: string, x: number, y: number, angle: number, points: Point[], alpha = 1) {
+function plane(
+	c: Composer,
+	color: string,
+	x: number,
+	y: number,
+	angle: number,
+	points: Point[],
+	alpha = 1
+) {
 	c.add(color, (ctx) => {
 		ctx.globalAlpha = alpha;
 		ctx.fillStyle = color;
@@ -91,7 +99,14 @@ function dominantForm(c: Composer, field: Field): void {
 function floatingPlanes(c: Composer, field: Field): void {
 	const { short: S, palette: P } = c;
 	c.stream(3);
-	const planes: { x: number; y: number; angle: number; points: Point[]; color: string; area: number }[] = [];
+	const planes: {
+		x: number;
+		y: number;
+		angle: number;
+		points: Point[];
+		color: string;
+		area: number;
+	}[] = [];
 	for (let i = 0, n = c.count(8, 16); i < n; i++) {
 		const angle = c.chance(0.65)
 			? field.angle
@@ -106,7 +121,14 @@ function floatingPlanes(c: Composer, field: Field): void {
 		const thickness = Math.min(S * 0.09, length * c.range(0.06, 0.4));
 		const roll = c.range(0, 1);
 		const color = roll < 0.3 ? P.ink : roll < 0.55 ? P.red : c.accent();
-		planes.push({ x, y, angle, points: handCut(c, length, thickness), color, area: length * thickness });
+		planes.push({
+			x,
+			y,
+			angle,
+			points: handCut(c, length, thickness),
+			color,
+			area: length * thickness
+		});
 	}
 	planes
 		.sort((a, b) => b.area - a.area)
@@ -161,7 +183,13 @@ function arkhitekton(c: Composer): void {
 			const wingA = a * c.range(1.2, 1.7);
 			const wingB = b * c.range(0.2, 0.35);
 			const wingH = h * c.range(0.4, 0.8);
-			blocks.push([x - cos30 * (wingA - a) * 0.5, y - 0.5 * (wingA - a) * 0.5 - h + wingH, wingA, wingB, wingH]);
+			blocks.push([
+				x - cos30 * (wingA - a) * 0.5,
+				y - 0.5 * (wingA - a) * 0.5 - h + wingH,
+				wingA,
+				wingB,
+				wingH
+			]);
 		}
 		const nextA = a * c.range(0.55, 0.88);
 		const nextB = b * c.range(0.55, 0.88);
@@ -172,7 +200,11 @@ function arkhitekton(c: Composer): void {
 		a = nextA;
 		b = nextB;
 	}
-	const colors = { top: tint(P.paper, 0.6), left: shade(P.paper, 0.07), right: shade(P.paper, 0.2) };
+	const colors = {
+		top: tint(P.paper, 0.6),
+		left: shade(P.paper, 0.07),
+		right: shade(P.paper, 0.2)
+	};
 	c.add(null, (ctx) => {
 		ctx.lineWidth = S * 0.0012;
 		ctx.strokeStyle = P.ink;

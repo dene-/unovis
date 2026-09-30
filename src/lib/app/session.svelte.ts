@@ -25,7 +25,9 @@ export class ProofSession {
 	}
 
 	pull(request: ProofRequest): void {
-		const kept = [...this.proofs.slice(0, this.index + 1), this.#issue(request)].slice(-KEPT_PROOFS);
+		const kept = [...this.proofs.slice(0, this.index + 1), this.#issue(request)].slice(
+			-KEPT_PROOFS
+		);
 		this.proofs = kept;
 		this.index = kept.length - 1;
 	}

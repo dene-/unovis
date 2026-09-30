@@ -121,7 +121,10 @@ function halftones(c: Composer, d: Dynamics): void {
 			for (let py = -height / 2 + step / 2; py < height / 2; py += step) {
 				for (let px = -width / 2 + step / 2; px < width / 2; px += step) {
 					const tone =
-						0.5 + 0.5 * Math.sin(px * waveX * Math.PI + phase) * Math.cos(py * waveY * Math.PI - phase * 0.7);
+						0.5 +
+						0.5 *
+							Math.sin(px * waveX * Math.PI + phase) *
+							Math.cos(py * waveY * Math.PI - phase * 0.7);
 					ctx.beginPath();
 					ctx.arc(px, py, step * 0.54 * Math.max(0.1, tone), 0, TAU);
 					ctx.fill();
@@ -140,7 +143,11 @@ function floatingBlocks(c: Composer, d: Dynamics, discRadius: number): void {
 		const distance = (discRadius || S * 0.15) * c.range(1.1, 1.9);
 		const x = d.cx + Math.cos(bearing) * distance;
 		const y = d.cy + Math.sin(bearing) * distance;
-		const faces = centredIsoBoxFaces(S * c.range(0.03, 0.09), S * c.range(0.03, 0.08), S * c.range(0.04, 0.14));
+		const faces = centredIsoBoxFaces(
+			S * c.range(0.03, 0.09),
+			S * c.range(0.03, 0.08),
+			S * c.range(0.04, 0.14)
+		);
 		const tilt = d.angle * 0.3 + c.range(-0.3, 0.3);
 		const color = c.anyColor();
 		c.add(color, (ctx) => {

@@ -40,7 +40,14 @@ export function paintPaper(ctx: CanvasRenderingContext2D, print: Composition): v
 	}
 	ctx.globalAlpha = 1;
 
-	const vignette = ctx.createRadialGradient(W / 2, H / 2, S * 0.3, W / 2, H / 2, Math.max(W, H) * 0.78);
+	const vignette = ctx.createRadialGradient(
+		W / 2,
+		H / 2,
+		S * 0.3,
+		W / 2,
+		H / 2,
+		Math.max(W, H) * 0.78
+	);
 	vignette.addColorStop(0, 'rgba(0,0,0,0)');
 	vignette.addColorStop(1, 'rgba(110,80,35,.22)');
 	ctx.fillStyle = vignette;

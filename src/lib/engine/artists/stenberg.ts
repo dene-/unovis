@@ -27,7 +27,8 @@ function recedingFloor(c: Composer, set: Staging): void {
 		const rays = Math.ceil((W * 2.5) / (spacing * 4)) + 2;
 		const xAt = (ray: number, y: number) =>
 			set.vanishX + (ray * spacing * 4 * (y - set.horizon)) / (vanishingDepth - set.horizon);
-		const yAt = (band: number) => set.horizon + (H - set.horizon) * 1.15 * Math.pow(band / bands, falloff);
+		const yAt = (band: number) =>
+			set.horizon + (H - set.horizon) * 1.15 * Math.pow(band / bands, falloff);
 		for (let band = 0; band < bands; band++) {
 			for (let ray = -rays; ray < rays; ray++) {
 				if ((((ray + band) % 2) + 2) % 2 === 0) continue;
@@ -127,7 +128,12 @@ function filmStrip(c: Composer): void {
 		}
 		frames.forEach((fill, k) => {
 			ctx.fillStyle = fill;
-			ctx.fillRect(-length / 2 + k * (frameLength + gap) + gap / 2, -breadth * 0.31, frameLength, breadth * 0.62);
+			ctx.fillRect(
+				-length / 2 + k * (frameLength + gap) + gap / 2,
+				-breadth * 0.31,
+				frameLength,
+				breadth * 0.62
+			);
 		});
 	});
 }
@@ -201,7 +207,18 @@ function billing(c: Composer): void {
 	const size = S * c.range(0.022, 0.03);
 	c.add(
 		null,
-		paintWord(P, { text: line, x: bx, y: by, angle: 0, size, style: 'band', color: P.ink, band, font: BODY_FONT, weight: '600' })
+		paintWord(P, {
+			text: line,
+			x: bx,
+			y: by,
+			angle: 0,
+			size,
+			style: 'band',
+			color: P.ink,
+			band,
+			font: BODY_FONT,
+			weight: '600'
+		})
 	);
 }
 

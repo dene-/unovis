@@ -127,8 +127,19 @@ function spaceForce(c: Composer, scene: Scene): void {
 	const { short: S, palette: P } = c;
 	c.stream(3);
 	if (!c.plates.keyForm) return;
-	const directions = [scene.angle, scene.angle + c.range(0.5, 1.1), scene.angle - c.range(0.4, 0.9)];
-	const lines: { x: number; y: number; angle: number; length: number; weight: number; color: string }[] = [];
+	const directions = [
+		scene.angle,
+		scene.angle + c.range(0.5, 1.1),
+		scene.angle - c.range(0.4, 0.9)
+	];
+	const lines: {
+		x: number;
+		y: number;
+		angle: number;
+		length: number;
+		weight: number;
+		color: string;
+	}[] = [];
 	for (let i = 0, n = c.count(7, 14); i < n; i++) {
 		lines.push({
 			x: scene.x + S * c.range(-0.4, 0.4),
@@ -139,8 +150,15 @@ function spaceForce(c: Composer, scene: Scene): void {
 			color: c.chance(0.8) ? scene.line : P.red
 		});
 	}
-	const arcs: { x: number; y: number; radius: number; start: number; sweep: number; weight: number; color: string }[] =
-		[];
+	const arcs: {
+		x: number;
+		y: number;
+		radius: number;
+		start: number;
+		sweep: number;
+		weight: number;
+		color: string;
+	}[] = [];
 	for (let i = 0, n = c.count(1, 3); i < n; i++) {
 		arcs.push({
 			x: scene.x + S * c.range(-0.3, 0.3),
@@ -183,7 +201,10 @@ function lettering(c: Composer, scene: Scene): void {
 		const y = H * c.range(0.12, 0.88);
 		const style = c.pick<WordStyle>(['plain', 'band', 'outline']);
 		const color = c.chance(0.6) ? scene.line : P.red;
-		c.add(style === 'band' ? null : color, paintWord(P, { text, x, y, angle, size, style, color, band: P.red }));
+		c.add(
+			style === 'band' ? null : color,
+			paintWord(P, { text, x, y, angle, size, style, color, band: P.red })
+		);
 	}
 	if (c.chance(0.5)) {
 		const lines = [c.pick(IMPRINTS), c.pick(IMPRINTS)];

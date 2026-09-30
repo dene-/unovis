@@ -13,7 +13,14 @@
 		children: Snippet;
 	}
 
-	let { asSheet, open = $bindable(), peek = $bindable(), header, actions, children }: Props = $props();
+	let {
+		asSheet,
+		open = $bindable(),
+		peek = $bindable(),
+		header,
+		actions,
+		children
+	}: Props = $props();
 
 	let sheet: HTMLElement;
 	let actionsBox: HTMLElement;

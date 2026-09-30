@@ -9,7 +9,14 @@ const settings = (overrides: Partial<PrintSettings> = {}): PrintSettings => ({
 	palette: 'proun',
 	sheet: { orientation: 'portrait', ratio: 'iso', resolution: 'hd' },
 	density: 'balanced',
-	plates: { keyForm: true, volumes: true, type: true, misregister: true, texture: false, margin: false },
+	plates: {
+		keyForm: true,
+		volumes: true,
+		type: true,
+		misregister: true,
+		texture: false,
+		margin: false
+	},
 	...overrides
 });
 
@@ -48,7 +55,9 @@ describe('sheetSize', () => {
 
 describe('composePrint', () => {
 	it.each(ARTIST_IDS)('draws the same %s print for the same seed', (artist) => {
-		expect(drawingOf('k3y5ee', settings({ artist }))).toEqual(drawingOf('k3y5ee', settings({ artist })));
+		expect(drawingOf('k3y5ee', settings({ artist }))).toEqual(
+			drawingOf('k3y5ee', settings({ artist }))
+		);
 	});
 
 	it.each(ARTIST_IDS)('draws a different %s print for a different seed', (artist) => {
@@ -60,7 +69,10 @@ describe('composePrint', () => {
 	it.each(ARTIST_IDS)('composes %s on every sheet shape', (artist) => {
 		for (const orientation of ['portrait', 'landscape'] as const) {
 			for (const ratio of ['1:1', 'iso', '21:9'] as const) {
-				const print = composePrint('t805tp', settings({ artist, sheet: { orientation, ratio, resolution: 'hd' } }));
+				const print = composePrint(
+					't805tp',
+					settings({ artist, sheet: { orientation, ratio, resolution: 'hd' } })
+				);
 				expect(print.ops.length).toBeGreaterThan(0);
 			}
 		}
@@ -68,7 +80,10 @@ describe('composePrint', () => {
 
 	it('keeps the rest of the composition when one plate is switched off', () => {
 		const full = composePrint('6liv3w', settings());
-		const plain = composePrint('6liv3w', settings({ plates: { ...settings().plates, type: false } }));
+		const plain = composePrint(
+			'6liv3w',
+			settings({ plates: { ...settings().plates, type: false } })
+		);
 		expect(plain.ops.length).toBeLessThan(full.ops.length);
 		expect(plain.colophon).toEqual(full.colophon);
 		expect(plain.registration).toEqual(full.registration);
@@ -83,7 +98,10 @@ describe('composePrint', () => {
 
 	it('scales with the sheet rather than changing with resolution', () => {
 		const small = composePrint('zz9x0q', settings());
-		const large = composePrint('zz9x0q', settings({ sheet: { ...settings().sheet, resolution: '8k' } }));
+		const large = composePrint(
+			'zz9x0q',
+			settings({ sheet: { ...settings().sheet, resolution: '8k' } })
+		);
 		expect(large.ops.length).toBe(small.ops.length);
 		expect(large.width / small.width).toBeCloseTo(4, 2);
 	});

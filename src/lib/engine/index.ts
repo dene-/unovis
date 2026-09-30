@@ -22,7 +22,14 @@ export { hashString } from './random';
 export type { Composition } from './composition';
 export { paintComposition } from './render/paint';
 export { PALETTES, PALETTE_IDS, type Palette, type PaletteId } from './palettes';
-export { ARTIST_IDS, DENSITIES, type ArtistId, type Density, type Plates, type PrintSettings } from './settings';
+export {
+	ARTIST_IDS,
+	DENSITIES,
+	type ArtistId,
+	type Density,
+	type Plates,
+	type PrintSettings
+} from './settings';
 export {
 	ASPECT_RATIOS,
 	ORIENTATIONS,

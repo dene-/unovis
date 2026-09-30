@@ -94,7 +94,12 @@ function hairlines(c: Composer, axis: Axis): void {
 	const { short: S, palette: P } = c;
 	c.stream(2);
 	for (let i = 0, n = c.count(1, 3.4); i < n; i++) {
-		const angle = c.pick([axis.angle, axis.angle, axis.angle + QUARTER_TURN, axis.angle + c.range(-0.35, 0.35)]);
+		const angle = c.pick([
+			axis.angle,
+			axis.angle,
+			axis.angle + QUARTER_TURN,
+			axis.angle + c.range(-0.35, 0.35)
+		]);
 		const lines = c.int(1, 5);
 		const gap = S * c.range(0.011, 0.026);
 		const length = S * c.range(0.5, 1.5);
@@ -105,7 +110,8 @@ function hairlines(c: Composer, axis: Axis): void {
 			ctx.translate(x, y);
 			ctx.rotate(angle);
 			ctx.fillStyle = color;
-			for (let j = 0; j < lines; j++) ctx.fillRect(-length / 2, j * gap - (lines * gap) / 2, length, weight);
+			for (let j = 0; j < lines; j++)
+				ctx.fillRect(-length / 2, j * gap - (lines * gap) / 2, length, weight);
 		});
 	}
 }
@@ -162,7 +168,12 @@ function disc(c: Composer, axis: Axis): Disc {
 	const splitColor = c.chance(0.55) ? other : c.accent();
 	const ringWidth = radius * c.range(0.12, 0.3);
 	const moon = c.chance(0.45)
-		? { x: W * c.range(0.12, 0.88), y: H * c.range(0.12, 0.88), radius: S * c.range(0.025, 0.075), color: c.anyColor() }
+		? {
+				x: W * c.range(0.12, 0.88),
+				y: H * c.range(0.12, 0.88),
+				radius: S * c.range(0.025, 0.075),
+				color: c.anyColor()
+			}
 		: null;
 
 	if (c.plates.keyForm) {
@@ -382,7 +393,10 @@ function lettering(c: Composer, axis: Axis): void {
 		const style = c.pick<WordStyle>(['plain', 'plain', 'band', 'spaced']);
 		const color = c.chance(0.55) ? P.ink : P.red;
 		const band = c.chance(0.5) ? P.red : P.ink;
-		c.add(style === 'band' ? null : color, paintWord(P, { text, x, y, angle, size, style, color, band }));
+		c.add(
+			style === 'band' ? null : color,
+			paintWord(P, { text, x, y, angle, size, style, color, band })
+		);
 	}
 	if (c.chance(0.3)) {
 		const text = c.pick(SLOGANS.filter((word) => word.length <= 5));

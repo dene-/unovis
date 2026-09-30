@@ -83,7 +83,13 @@ export function sheetDrag(options: SheetDragOptions): Attachment<HTMLElement> {
 			delete sheet.dataset.dragging;
 			sheet.style.transform = '';
 			options.onProgress(null);
-			options.setOpen(velocity < -FLICK ? true : velocity > FLICK ? false : finished.position < finished.travel / 2);
+			options.setOpen(
+				velocity < -FLICK
+					? true
+					: velocity > FLICK
+						? false
+						: finished.position < finished.travel / 2
+			);
 			setTimeout(() => (suppressClick = false), 50);
 		};
 

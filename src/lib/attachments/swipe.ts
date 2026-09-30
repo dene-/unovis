@@ -19,7 +19,8 @@ const RESISTANCE = 0.3;
 /** Drag the element sideways like a sheet of paper; a tap is a tap. */
 export function swipe(options: SwipeOptions): Attachment<HTMLElement> {
 	return (node) => {
-		let drag: { id: number; x: number; y: number; t: number; dx: number; moving: boolean } | null = null;
+		let drag: { id: number; x: number; y: number; t: number; dx: number; moving: boolean } | null =
+			null;
 
 		const springBack = () => {
 			const from = node.style.transform;
@@ -34,7 +35,14 @@ export function swipe(options: SwipeOptions): Attachment<HTMLElement> {
 
 		const down = (event: PointerEvent) => {
 			if (event.button !== 0) return;
-			drag = { id: event.pointerId, x: event.clientX, y: event.clientY, t: performance.now(), dx: 0, moving: false };
+			drag = {
+				id: event.pointerId,
+				x: event.clientX,
+				y: event.clientY,
+				t: performance.now(),
+				dx: 0,
+				moving: false
+			};
 		};
 
 		const move = (event: PointerEvent) => {
@@ -56,7 +64,8 @@ export function swipe(options: SwipeOptions): Attachment<HTMLElement> {
 			drag = null;
 			if (!moving) return options.onTap();
 			const velocity = dx / Math.max(1, performance.now() - t);
-			if (Math.abs(dx) < COMMIT_DISTANCE && Math.abs(velocity) < COMMIT_VELOCITY) return springBack();
+			if (Math.abs(dx) < COMMIT_DISTANCE && Math.abs(velocity) < COMMIT_VELOCITY)
+				return springBack();
 			if (dx > 0 && !options.canGoBack()) {
 				springBack();
 				return options.onRefused();

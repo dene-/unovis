@@ -20,7 +20,11 @@ function ghostOf(canvas: HTMLCanvasElement): HTMLCanvasElement {
  * Starts the transition from the print currently on the canvas to the one about to be painted.
  * Call it before painting: it lifts a copy of the old sheet and animates it away.
  */
-export function beginTransition(canvas: HTMLCanvasElement, motion: Motion, dragOffset: string): void {
+export function beginTransition(
+	canvas: HTMLCanvasElement,
+	motion: Motion,
+	dragOffset: string
+): void {
 	canvas.style.transform = '';
 	if (motion === 'instant' || !canvas.width) return;
 
@@ -28,7 +32,12 @@ export function beginTransition(canvas: HTMLCanvasElement, motion: Motion, dragO
 	const remove = () => ghost.remove();
 
 	if (motion === 'refresh') {
-		ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: FADE_MS, easing: 'ease-out', fill: 'forwards' })
+		ghost
+			.animate([{ opacity: 1 }, { opacity: 0 }], {
+				duration: FADE_MS,
+				easing: 'ease-out',
+				fill: 'forwards'
+			})
 			.finished.then(remove, remove);
 		return;
 	}

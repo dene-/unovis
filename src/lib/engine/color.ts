@@ -16,7 +16,12 @@ export function mix(from: string, to: string, amount: number): string {
 }
 
 export function mixHex(from: string, to: string, amount: number): string {
-	return '#' + blend(from, to, amount).map((channel) => channel.toString(16).padStart(2, '0')).join('');
+	return (
+		'#' +
+		blend(from, to, amount)
+			.map((channel) => channel.toString(16).padStart(2, '0'))
+			.join('')
+	);
 }
 
 export const shade = (color: string, amount: number) => mix(color, '#000000', amount);

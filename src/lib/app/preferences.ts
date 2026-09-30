@@ -34,7 +34,14 @@ export const DEFAULT_PREFERENCES: Preferences = {
 	sheet: { orientation: 'portrait', ratio: 'iso', resolution: '4k' },
 	density: 'balanced',
 	fileType: 'png',
-	plates: { keyForm: true, volumes: true, type: true, misregister: true, texture: true, margin: false }
+	plates: {
+		keyForm: true,
+		volumes: true,
+		type: true,
+		misregister: true,
+		texture: true,
+		margin: false
+	}
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -64,7 +71,11 @@ export function sanitizePreferences(stored: unknown): Preferences {
 		sheet: {
 			orientation: oneOf(sheet.orientation, ORIENTATIONS, d.sheet.orientation),
 			ratio: oneOf(sheet.ratio, Object.keys(ASPECT_RATIOS) as AspectRatio[], d.sheet.ratio),
-			resolution: oneOf(sheet.resolution, Object.keys(RESOLUTIONS) as Resolution[], d.sheet.resolution)
+			resolution: oneOf(
+				sheet.resolution,
+				Object.keys(RESOLUTIONS) as Resolution[],
+				d.sheet.resolution
+			)
 		},
 		density: oneOf(stored.density, Object.keys(DENSITIES) as Density[], d.density),
 		fileType: oneOf(stored.fileType, FILE_TYPES, d.fileType),

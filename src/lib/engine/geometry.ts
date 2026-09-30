@@ -25,7 +25,13 @@ export interface BoxColors {
 }
 
 /** Axonometric box whose back-bottom corner sits at the origin; `a` and `b` are the plan sides. */
-export function isoBoxFaces(originX: number, originY: number, a: number, b: number, height: number): BoxFaces {
+export function isoBoxFaces(
+	originX: number,
+	originY: number,
+	a: number,
+	b: number,
+	height: number
+): BoxFaces {
 	const u: Point = [COS_30 * a, 0.5 * a];
 	const v: Point = [-COS_30 * b, 0.5 * b];
 	const up: Point = [0, -height];

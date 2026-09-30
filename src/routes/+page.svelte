@@ -39,7 +39,8 @@
 	const toaster = new Toaster();
 	const phone = new MediaQuery('max-width: 880px');
 	const touchScreen = new MediaQuery('pointer: coarse');
-	const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+	const standalone =
+		matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 
 	const link = parseLink(location.hash);
 	if (link && resolveArtist(preferences.current.artist, link.seed) !== link.artist) {
@@ -218,7 +219,9 @@
 				<b>Unovis</b>
 				<span>after {artist.name}</span>
 			</div>
-			<button class="btn" type="button" onclick={() => controls.reveal(artistSection)}>Artist</button>
+			<button class="btn" type="button" onclick={() => controls.reveal(artistSection)}
+				>Artist</button
+			>
 		</header>
 
 		<PrintStage
@@ -351,7 +354,8 @@
 			<PlateToggles
 				plates={preferences.current.plates}
 				labels={artist.plateLabels}
-				onchange={(plate: keyof Plates, on: boolean) => restyle(() => preferences.setPlate(plate, on))}
+				onchange={(plate: keyof Plates, on: boolean) =>
+					restyle(() => preferences.setPlate(plate, on))}
 			/>
 		</section>
 

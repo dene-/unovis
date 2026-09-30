@@ -32,7 +32,9 @@ describe('prints', () => {
 
 	it('uses the artist’s own inks unless an ink set is chosen', () => {
 		expect(printSettings(DEFAULT_PREFERENCES, 'stepanova').palette).toBe('calico');
-		expect(printSettings({ ...DEFAULT_PREFERENCES, palette: 'steel' }, 'stepanova').palette).toBe('steel');
+		expect(printSettings({ ...DEFAULT_PREFERENCES, palette: 'steel' }, 'stepanova').palette).toBe(
+			'steel'
+		);
 	});
 
 	it('round-trips links and rejects unknown artists', () => {
