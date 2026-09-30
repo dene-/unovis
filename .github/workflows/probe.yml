@@ -23,3 +23,19 @@ jobs:
         run: cat out/part2.txt 2>/dev/null || true
       - if: always()
         run: cat out/part3.txt 2>/dev/null || true
+      - if: always()
+        run: cat out/part4.txt 2>/dev/null || true
+      - if: always()
+        run: cat out/part5.txt 2>/dev/null || true
+      - if: always()
+        run: cat out/part6.txt 2>/dev/null || true
+      - if: always()
+        run: cat out/part7.txt 2>/dev/null || true
+      - if: always()
+        run: cat out/part8.txt 2>/dev/null || true
+      - if: always()
+        run: cat out/part9.txt 2>/dev/null || true
+      - if: always()
+        run: cat out/part10.txt 2>/dev/null || true
+      - if: always()
+        run: cat out/part11.txt 2>/dev/null || true
