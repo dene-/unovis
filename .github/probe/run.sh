@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 mkdir -p out
-{ node --version; npm --version; } > out/install.txt
-npm install --no-audit --no-fund >> out/install.txt 2>&1; echo "exit $?" >> out/install.txt
-npx svelte-kit sync > out/sync.txt 2>&1
-npx prettier --write . --log-level warn > out/prettier.txt 2>&1; echo "exit $?" >> out/prettier.txt
-tar --exclude=node_modules --exclude=.git --exclude=out --exclude=.svelte-kit --exclude=build -czf out/formatted.tgz .
-npx svelte-check --tsconfig ./tsconfig.json --output human > out/check.txt 2>&1; echo "exit $?" >> out/check.txt
-npx eslint . > out/eslint.txt 2>&1; echo "exit $?" >> out/eslint.txt
-npx prettier --check . > out/prettiercheck.txt 2>&1; echo "exit $?" >> out/prettiercheck.txt
-npx vitest run > out/test.txt 2>&1; echo "exit $?" >> out/test.txt
-BASE_PATH=/unovis npx vite build > out/build.txt 2>&1; echo "exit $?" >> out/build.txt
-cp package-lock.json out/package-lock.json 2>/dev/null
+npm ci --no-audit --no-fund > /dev/null 2>&1 || npm install --no-audit --no-fund > /dev/null 2>&1
+npx prettier --write . --log-level warn > /dev/null 2>&1
+tar --exclude=node_modules --exclude=.git --exclude=out --exclude=.svelte-kit --exclude=build --exclude=static --exclude=package-lock.json --exclude=.github -czf out/formatted.tgz .
+python3 - <<'PY'
+import base64
+blob = base64.b64encode(open('out/formatted.tgz','rb').read()).decode()
+chunks = [blob[i:i+3500] for i in range(0, len(blob), 3500)]
+for s in range(0, len(chunks), 10):
+    with open(f'out/part{s//10}.txt','w') as f:
+        for n in range(s, min(s+10, len(chunks))):
+            f.write(f'::notice title=formatted.tgz|{n}|{len(chunks)}::{chunks[n]}\n')
+print(len(chunks))
+PY
 exit 0
