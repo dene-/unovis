@@ -11,7 +11,11 @@ jobs:
         with:
           node-version: 22
       - run: bash .github/probe/run.sh
-      - run: python3 .github/probe/emit.py install.txt sync.txt prettier.txt check.txt
-      - run: python3 .github/probe/emit.py eslint.txt test.txt build.txt buildls.txt
-      - run: python3 .github/probe/emit.py format.diff
-      - run: python3 .github/probe/emit.py package-lock.json
+      - if: always()
+        run: python3 .github/probe/emit.py install.txt sync.txt prettier.txt check.txt
+      - if: always()
+        run: python3 .github/probe/emit.py eslint.txt test.txt build.txt buildls.txt
+      - if: always()
+        run: python3 .github/probe/emit.py format.diff
+      - if: always()
+        run: python3 .github/probe/emit.py package-lock.json

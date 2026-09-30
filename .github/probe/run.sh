@@ -11,3 +11,4 @@ npx vitest run > out/test.txt 2>&1; echo "exit $?" >> out/test.txt
 BASE_PATH=/unovis npx vite build > out/build.txt 2>&1; echo "exit $?" >> out/build.txt
 cp package-lock.json out/package-lock.json 2>/dev/null || true
 ls -la build > out/buildls.txt 2>&1
+exit 0
