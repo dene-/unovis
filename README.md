@@ -14,7 +14,8 @@ link like `#klutsis-q00001` reproduces it exactly.
 
 - Seven artists, nine ink sets, and plates that switch layers on and off without reshuffling the rest
 - Sheets from square to 21:9 in portrait or landscape, saved as PNG or JPG from HD up to 8K
-- Swipe the print left for a new one and right to go back; on phones the controls live in a bottom sheet
+- Swipe the print left for a new one and right to go back; on phones, a toolbar and tabbed panels
+  hold the controls
 - Installable PWA: offline after the first visit, and saving goes through the share sheet on phones
 
 ## Development
@@ -38,7 +39,7 @@ src/lib/engine/        pure drawing engine, no Svelte
   artists/             one module per artist; each implements Artist.compose()
   render/              paints a Composition onto a canvas, and the paper texture
 src/lib/app/           application logic: preferences, session history, saving, deep links
-src/lib/attachments/   swipe and bottom-sheet gestures
+src/lib/attachments/   swipe and panel gestures
 src/lib/components/    Svelte components
 src/routes/            the single page
 src/service-worker.ts  offline cache

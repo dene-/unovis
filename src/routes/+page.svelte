@@ -2,38 +2,45 @@
 	import { afterNavigate, replaceState } from '$app/navigation';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { prefersReducedMotion } from 'svelte/motion';
-	import { ARTISTS, composePrint, PALETTES, type Plates, type SheetSpec } from '$lib/engine';
+	import { ARTISTS, composePrint, PALETTES, type SheetSpec } from '$lib/engine';
 	import { renderPrintFile, type PrintFile } from '$lib/app/export';
 	import { loadPrintFonts } from '$lib/app/fonts';
 	import { pulse } from '$lib/app/haptics';
 	import type { Motion } from '$lib/app/motion';
-	import type { ArtistChoice, FileType, PaletteChoice, Preferences } from '$lib/app/preferences';
+	import type { ArtistChoice } from '$lib/app/preferences';
 	import { browserStorage, PreferencesStore } from '$lib/app/preferences.svelte';
-	import {
-		cleanSeed,
-		formatLink,
-		newSeed,
-		parseLink,
-		printSettings,
-		resolveArtist
-	} from '$lib/app/prints';
+	import { formatLink, newSeed, parseLink, printSettings, resolveArtist } from '$lib/app/prints';
 	import { preferredSaver } from '$lib/app/savers';
 	import { ProofSession } from '$lib/app/session.svelte';
 	import { artistPreviews } from '$lib/app/thumbnails';
 	import { Toaster } from '$lib/app/toaster.svelte';
 	import type { SwipeDirection } from '$lib/attachments/swipe';
 	import ArtistPicker from '$lib/components/ArtistPicker.svelte';
-	import ControlSheet from '$lib/components/ControlSheet.svelte';
 	import Glyph from '$lib/components/Glyph.svelte';
+	import Icon from '$lib/components/Icon.svelte';
 	import InkPicker from '$lib/components/InkPicker.svelte';
 	import InstallButton from '$lib/components/InstallButton.svelte';
+	import MobileDock, { type DockTab } from '$lib/components/MobileDock.svelte';
 	import PlateToggles from '$lib/components/PlateToggles.svelte';
 	import PrintStage from '$lib/components/PrintStage.svelte';
 	import ProofStrip from '$lib/components/ProofStrip.svelte';
 	import SaveDialog from '$lib/components/SaveDialog.svelte';
-	import Segmented from '$lib/components/Segmented.svelte';
+	import SeedField from '$lib/components/SeedField.svelte';
+	import SheetSettings from '$lib/components/SheetSettings.svelte';
+	import SidePanel from '$lib/components/SidePanel.svelte';
 	import Splash from '$lib/components/Splash.svelte';
+	import SwipeHint from '$lib/components/SwipeHint.svelte';
 	import Toast from '$lib/components/Toast.svelte';
+
+	type Panel = 'artist' | 'inks' | 'sheet' | 'plates' | 'prints';
+
+	const TABS: readonly DockTab<Panel>[] = [
+		{ id: 'artist', label: 'Artist', icon: 'artist' },
+		{ id: 'inks', label: 'Inks', icon: 'inks' },
+		{ id: 'sheet', label: 'Sheet', icon: 'sheet' },
+		{ id: 'plates', label: 'Plates', icon: 'plates' },
+		{ id: 'prints', label: 'Prints', icon: 'prints' }
+	];
 
 	const preferences = new PreferencesStore(browserStorage('unovis:preferences'));
 	const toaster = new Toaster();
@@ -56,19 +63,20 @@
 	let dragOffset = $state('');
 	let fontsLoaded = $state(false);
 	let previews = $state<Record<ArtistChoice, string> | null>(null);
-	let sheetOpen = $state(false);
-	let peek = $state(0);
+	let openPanel = $state<Panel | null>(null);
+	let dockHeight = $state(0);
 	let saving = $state(false);
 	let pendingFile = $state<File | null>(null);
 	let routerReady = $state(false);
-	let controls: ReturnType<typeof ControlSheet>;
-	let artistSection: HTMLElement;
 
 	const seed = $derived(session.current.seed);
 	const drawing = $derived(session.current.artist);
 	const artist = $derived(ARTISTS[drawing]);
 	const settings = $derived(printSettings(preferences.current, drawing));
 	const print = $derived(composePrint(seed, settings));
+	const saveSpec = $derived(
+		`${preferences.current.sheet.resolution.toUpperCase()} ${preferences.current.fileType.toUpperCase()} · ${print.width}×${print.height}`
+	);
 
 	loadPrintFonts().then(() => {
 		fontsLoaded = true;
@@ -161,10 +169,6 @@
 	function keydown(event: KeyboardEvent) {
 		if (event.metaKey || event.ctrlKey || event.altKey) return;
 		const target = event.target as HTMLElement;
-		if (event.key === 'Escape' && sheetOpen) {
-			sheetOpen = false;
-			return;
-		}
 		if (target.matches('input[type="text"], dialog *')) return;
 		const inGroup = !!target.closest('[role="radiogroup"]');
 		if (event.key === ' ' && !target.matches('button, input')) {
@@ -174,35 +178,6 @@
 		else if (event.key === 'ArrowLeft' && !inGroup) step(-1);
 		else if (event.key === 'ArrowRight' && !inGroup) step(1);
 	}
-
-	const orientations = [
-		{ value: 'portrait', label: 'Portrait' },
-		{ value: 'landscape', label: 'Landscape' }
-	] as const;
-	const ratios = [
-		{ value: '1:1', label: '1:1', title: 'Square' },
-		{ value: '5:4', label: '5:4' },
-		{ value: '4:3', label: '4:3' },
-		{ value: '3:2', label: '3:2' },
-		{ value: 'iso', label: 'A4', title: 'ISO A-series paper (A4, A3…)' },
-		{ value: '16:9', label: '16:9' },
-		{ value: '21:9', label: '21:9' }
-	] as const;
-	const resolutions = [
-		{ value: 'hd', label: 'HD' },
-		{ value: '2k', label: '2K' },
-		{ value: '4k', label: '4K' },
-		{ value: '8k', label: '8K' }
-	] as const;
-	const fileTypes = [
-		{ value: 'png', label: 'PNG' },
-		{ value: 'jpg', label: 'JPG' }
-	] as const;
-	const densities = [
-		{ value: 'sparse', label: 'Sparse' },
-		{ value: 'balanced', label: 'Balanced' },
-		{ value: 'dense', label: 'Dense' }
-	] as const;
 </script>
 
 <svelte:head>
@@ -211,19 +186,76 @@
 
 <svelte:window onkeydown={keydown} />
 
-<div class="app" style:--peek="{peek}px">
-	<main class="stage">
+{#snippet artistControls()}
+	<ArtistPicker
+		value={preferences.current.artist}
+		{drawing}
+		{previews}
+		strip={phone.current}
+		onselect={chooseArtist}
+	/>
+{/snippet}
+
+{#snippet inkControls()}
+	<InkPicker
+		value={preferences.current.palette}
+		artistPalette={artist.palette}
+		onselect={(palette) => restyle(() => preferences.set({ palette }))}
+	/>
+{/snippet}
+
+{#snippet sheetControls()}
+	<SheetSettings
+		sheet={preferences.current.sheet}
+		fileType={preferences.current.fileType}
+		density={preferences.current.density}
+		size={print}
+		onsheet={setSheet}
+		onfiletype={(fileType) => preferences.set({ fileType })}
+		ondensity={(density) => restyle(() => preferences.set({ density }))}
+	/>
+{/snippet}
+
+{#snippet plateControls()}
+	<PlateToggles
+		plates={preferences.current.plates}
+		labels={artist.plateLabels}
+		onchange={(plate, on) => restyle(() => preferences.setPlate(plate, on))}
+	/>
+{/snippet}
+
+{#snippet proofs()}
+	<ProofStrip
+		proofs={session.proofs}
+		index={session.index}
+		thumbnails={session.thumbnails}
+		onselect={(index) => step(index - session.index)}
+	/>
+{/snippet}
+
+{#snippet about()}
+	<InstallButton oninstalled={() => toaster.show('Unovis installed')} />
+	<p class="note">
+		Same artist and seed, same print. Changing ink or plates keeps the composition; a new seed
+		rearranges it.
+	</p>
+{/snippet}
+
+<div class="app" class:phone={phone.current} style:--peek="{phone.current ? dockHeight : 0}px">
+	{#if phone.current}
 		<header class="appbar">
 			<Glyph size={26} />
 			<div class="title">
 				<b>Unovis</b>
 				<span>after {artist.name}</span>
 			</div>
-			<button class="btn" type="button" onclick={() => controls.reveal(artistSection)}
-				>Artist</button
-			>
+			<button class="seed-chip" type="button" onclick={() => (openPanel = 'prints')}>
+				{seed}
+			</button>
 		</header>
+	{/if}
 
+	<main class="stage">
 		<PrintStage
 			{print}
 			ready={fontsLoaded}
@@ -238,145 +270,118 @@
 			onpainted={(thumbnail) => session.thumbnails.set(session.current.id, thumbnail)}
 		/>
 
-		<p class="hint">
-			tap or swipe ← for a new print · swipe → to go back<br />space for new · arrow keys for
-			history
-		</p>
+		{#if phone.current}
+			<SwipeHint />
+		{:else}
+			<p class="shortcuts">
+				click or swipe ← for a new print · swipe → to go back<br />space for new · arrow keys for
+				history
+			</p>
+		{/if}
 	</main>
 
-	<ControlSheet asSheet={phone.current} bind:open={sheetOpen} bind:peek bind:this={controls}>
-		{#snippet header()}
-			<div class="masthead">
-				<Glyph />
-				<h1>Unovis</h1>
-				<p>Constructivist print generator</p>
-			</div>
-		{/snippet}
-
-		{#snippet actions()}
-			<button class="btn primary" type="button" onclick={() => pullNew()}>
-				New print <span class="arrow" aria-hidden="true"></span>
-			</button>
-			<div class="seed-row">
-				<input
-					type="text"
-					value={seed}
-					spellcheck="false"
-					autocomplete="off"
-					maxlength="16"
-					aria-label="Seed"
-					onchange={(event) => {
-						const typed = cleanSeed(event.currentTarget.value);
-						if (typed && typed !== seed) pull(typed);
-						else event.currentTarget.value = seed;
-					}}
-					onkeydown={(event) => event.key === 'Enter' && event.currentTarget.blur()}
-				/>
-				<button class="btn" class:busy={saving} type="button" disabled={saving} onclick={save}>
+	{#if phone.current}
+		<MobileDock
+			tabs={TABS}
+			bind:active={openPanel}
+			bind:height={dockHeight}
+			reducedMotion={prefersReducedMotion.current}
+		>
+			{#snippet actions()}
+				<button
+					class="btn icon"
+					type="button"
+					aria-label="Previous print"
+					disabled={!session.canStep(-1)}
+					onclick={() => step(-1)}
+				>
+					<Icon name="back" />
+				</button>
+				<button class="btn primary" type="button" onclick={() => pullNew()}>
+					New print <span class="arrow" aria-hidden="true"></span>
+				</button>
+				<button
+					class="btn save"
+					class:busy={saving}
+					type="button"
+					disabled={saving}
+					aria-label="Save print, {saveSpec}"
+					onclick={save}
+				>
+					<Icon name="save" size={18} />
 					Save
 				</button>
-			</div>
-			<div class="save-spec">
-				<span>
-					{preferences.current.sheet.resolution.toUpperCase()}
-					{preferences.current.fileType.toUpperCase()} · {print.width}×{print.height}
-				</span>
-				<span>{saving ? 'Rendering…' : ''}</span>
-			</div>
-		{/snippet}
+			{/snippet}
 
-		<section class="section" bind:this={artistSection}>
-			<div class="label">Artist</div>
-			<ArtistPicker
-				value={preferences.current.artist}
-				{drawing}
-				{previews}
-				onselect={chooseArtist}
-			/>
-		</section>
+			{#snippet panel(id)}
+				{#if id === 'artist'}
+					{@render artistControls()}
+				{:else if id === 'inks'}
+					{@render inkControls()}
+				{:else if id === 'sheet'}
+					{@render sheetControls()}
+				{:else if id === 'plates'}
+					{@render plateControls()}
+				{:else}
+					<div class="label">Seed</div>
+					<SeedField {seed} onsubmit={(typed) => pull(typed)} />
+					<div class="label">This session</div>
+					{@render proofs()}
+					{@render about()}
+				{/if}
+			{/snippet}
+		</MobileDock>
+	{:else}
+		<SidePanel>
+			{#snippet header()}
+				<div class="masthead">
+					<Glyph />
+					<h1>Unovis</h1>
+					<p>Constructivist print generator</p>
+				</div>
+			{/snippet}
 
-		<section class="section">
-			<div class="label">Ink set</div>
-			<InkPicker
-				value={preferences.current.palette}
-				artistPalette={artist.palette}
-				onselect={(palette: PaletteChoice) => restyle(() => preferences.set({ palette }))}
-			/>
-		</section>
+			{#snippet actions()}
+				<button class="btn primary" type="button" onclick={() => pullNew()}>
+					New print <span class="arrow" aria-hidden="true"></span>
+				</button>
+				<div class="seed-row">
+					<SeedField {seed} onsubmit={(typed) => pull(typed)} />
+					<button class="btn" class:busy={saving} type="button" disabled={saving} onclick={save}>
+						Save
+					</button>
+				</div>
+				<div class="save-spec">
+					<span>{saveSpec}</span>
+					<span>{saving ? 'Rendering…' : ''}</span>
+				</div>
+			{/snippet}
 
-		<section class="section">
-			<div class="label">Sheet</div>
-			<Segmented
-				name="orientation"
-				label="Orientation"
-				options={orientations}
-				value={preferences.current.sheet.orientation}
-				onchange={(orientation) => setSheet({ orientation })}
-			/>
-			<Segmented
-				name="ratio"
-				label="Aspect ratio"
-				compact
-				options={ratios}
-				value={preferences.current.sheet.ratio}
-				onchange={(ratio) => setSheet({ ratio })}
-			/>
-			<div class="label">
-				Resolution <span class="dims">{print.width} × {print.height} px</span>
-			</div>
-			<Segmented
-				name="resolution"
-				label="Resolution"
-				options={resolutions}
-				value={preferences.current.sheet.resolution}
-				onchange={(resolution) => setSheet({ resolution })}
-			/>
-			<div class="label">File</div>
-			<Segmented
-				name="file-type"
-				label="File type"
-				options={fileTypes}
-				value={preferences.current.fileType}
-				onchange={(fileType: FileType) => preferences.set({ fileType })}
-			/>
-			<div class="label">Density</div>
-			<Segmented
-				name="density"
-				label="Density"
-				options={densities}
-				value={preferences.current.density}
-				onchange={(density: Preferences['density']) => restyle(() => preferences.set({ density }))}
-			/>
-		</section>
-
-		<section class="section">
-			<div class="label">Plates</div>
-			<PlateToggles
-				plates={preferences.current.plates}
-				labels={artist.plateLabels}
-				onchange={(plate: keyof Plates, on: boolean) =>
-					restyle(() => preferences.setPlate(plate, on))}
-			/>
-		</section>
-
-		<section class="section">
-			<div class="label">This session <span><kbd>←</kbd> <kbd>→</kbd></span></div>
-			<ProofStrip
-				proofs={session.proofs}
-				index={session.index}
-				thumbnails={session.thumbnails}
-				onselect={(index) => step(index - session.index)}
-			/>
-		</section>
-
-		<footer class="footnote">
-			<InstallButton oninstalled={() => toaster.show('Unovis installed')} />
-			<p>
-				Same artist and seed, same print. Changing ink or plates keeps the composition; a new seed
-				rearranges it.
-			</p>
-		</footer>
-	</ControlSheet>
+			<section class="section">
+				<div class="label">Artist</div>
+				{@render artistControls()}
+			</section>
+			<section class="section">
+				<div class="label">Ink set</div>
+				{@render inkControls()}
+			</section>
+			<section class="section">
+				<div class="label">Sheet</div>
+				{@render sheetControls()}
+			</section>
+			<section class="section">
+				<div class="label">Plates</div>
+				{@render plateControls()}
+			</section>
+			<section class="section">
+				<div class="label">This session <span><kbd>←</kbd> <kbd>→</kbd></span></div>
+				{@render proofs()}
+			</section>
+			<footer class="footnote">
+				{@render about()}
+			</footer>
+		</SidePanel>
+	{/if}
 
 	<Toast {toaster} />
 </div>
@@ -408,11 +413,7 @@
 		background: var(--wall);
 	}
 
-	.appbar {
-		display: none;
-	}
-
-	.hint {
+	.shortcuts {
 		position: absolute;
 		left: 16px;
 		bottom: 12px;
@@ -495,17 +496,6 @@
 		gap: 8px;
 	}
 
-	.seed-row input {
-		min-width: 0;
-		padding: 9px 10px;
-		border: 2px solid var(--rule);
-		border-radius: 0;
-		background: var(--bg);
-		font-family: var(--font-mono);
-		font-size: 16px;
-		text-transform: lowercase;
-	}
-
 	.busy {
 		position: relative;
 		overflow: hidden;
@@ -542,15 +532,6 @@
 		color: var(--muted);
 	}
 
-	.dims {
-		font-family: var(--font-mono);
-		font-size: 11px;
-		font-weight: 400;
-		letter-spacing: 0;
-		text-transform: none;
-		font-variant-numeric: tabular-nums;
-	}
-
 	kbd {
 		padding: 0 4px;
 		border: 1px solid currentColor;
@@ -568,69 +549,89 @@
 		color: var(--muted);
 	}
 
-	.footnote p {
+	.note {
 		margin: 0;
 		max-width: 44ch;
+		font-size: 12px;
+		color: var(--muted);
 	}
 
-	@media (max-width: 880px) {
-		.app {
-			display: block;
-			padding: 0;
-			overflow: hidden;
-		}
+	.app.phone {
+		position: fixed;
+		inset: 0;
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: auto minmax(0, 1fr) auto;
+		gap: 0;
+		height: auto;
+		padding: 0;
+		background: var(--wall);
+	}
 
-		.stage {
-			position: fixed;
-			inset: 0;
-			--bar: 52px;
-			--print-max-height: calc(
-				100dvh - env(safe-area-inset-top, 0px) - var(--bar) - var(--peek) - 28px
-			);
-			padding: calc(env(safe-area-inset-top, 0px) + var(--bar) + 8px) 16px calc(var(--peek) + 16px);
-		}
+	.phone .stage {
+		container-type: size;
+		--print-max-height: calc(100cqh - 16px);
+		padding: 4px 16px 12px;
+	}
 
-		.appbar {
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			z-index: 2;
-			display: flex;
-			align-items: center;
-			gap: 12px;
-			padding: calc(env(safe-area-inset-top, 0px) + 10px) 16px 8px;
-		}
+	.appbar {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: calc(env(safe-area-inset-top, 0px) + 10px) 16px 8px;
+	}
 
-		.title {
-			display: grid;
-			flex: 1;
-			min-width: 0;
-			line-height: 1.15;
-		}
+	.title {
+		display: grid;
+		flex: 1;
+		min-width: 0;
+		line-height: 1.15;
+	}
 
-		.title b {
-			font-family: var(--font-display);
-			font-weight: 400;
-			font-size: 15px;
-			letter-spacing: 0.03em;
-		}
+	.title b {
+		font-family: var(--font-display);
+		font-weight: 400;
+		font-size: 15px;
+		letter-spacing: 0.03em;
+	}
 
-		.title span {
-			overflow: hidden;
-			white-space: nowrap;
-			text-overflow: ellipsis;
-			font-size: 12.5px;
-			color: var(--muted);
-		}
+	.title span {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		font-size: 12.5px;
+		color: var(--muted);
+	}
 
-		.appbar .btn {
-			padding: 6px 10px;
-			background: var(--panel);
-		}
+	.seed-chip {
+		padding: 5px 9px;
+		border: 1px solid color-mix(in srgb, var(--rule) 40%, transparent);
+		background: none;
+		color: var(--muted);
+		font-family: var(--font-mono);
+		font-size: 12px;
+		cursor: pointer;
+	}
 
-		.hint {
-			display: none;
-		}
+	.phone .primary {
+		padding: 12px 14px;
+		font-size: 14px;
+	}
+
+	.icon {
+		display: grid;
+		place-items: center;
+		padding: 0;
+	}
+
+	.icon:disabled {
+		opacity: 0.3;
+		cursor: default;
+	}
+
+	.save {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		padding-inline: 12px;
 	}
 </style>

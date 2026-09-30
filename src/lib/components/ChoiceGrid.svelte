@@ -10,11 +10,20 @@
 		onselect: (choice: T) => void;
 		card: Snippet<[T]>;
 		caption: (choice: T) => string;
+		/** A single scrolling row, for narrow screens. */
+		strip?: boolean;
 	}
 
-	let { label, choices, value, columns, onselect, card, caption }: Props = $props();
+	let { label, choices, value, columns, onselect, card, caption, strip = false }: Props = $props();
 
 	let group: HTMLDivElement;
+
+	$effect(() => {
+		if (!strip) return;
+		group
+			.querySelector(`[data-choice="${value}"]`)
+			?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+	});
 
 	function keydown(event: KeyboardEvent) {
 		const next = rove(event, choices, value);
@@ -26,6 +35,7 @@
 
 <div
 	class="grid"
+	class:strip
 	style:--columns={columns}
 	role="radiogroup"
 	aria-label={label}
@@ -53,6 +63,25 @@
 		display: grid;
 		grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
 		gap: 7px;
+	}
+
+	.strip {
+		grid-template-columns: none;
+		grid-auto-flow: column;
+		grid-auto-columns: minmax(92px, 28%);
+		overflow-x: auto;
+		scroll-snap-type: x proximity;
+		scrollbar-width: none;
+		margin-inline: -16px;
+		padding: 2px 16px 4px;
+	}
+
+	.strip::-webkit-scrollbar {
+		display: none;
+	}
+
+	.strip button {
+		scroll-snap-align: center;
 	}
 
 	button {
