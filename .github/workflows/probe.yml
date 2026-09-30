@@ -10,25 +10,8 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 22
-      - run: npm install --no-audit --no-fund 2>&1 | tail -20
-      - run: npx svelte-kit sync
-      - name: format
-        run: |
-          npx prettier --write . > /dev/null
-          git add -N . && git diff > format.diff || true
-          echo "=== FORMAT DIFF (base64 gzip) ==="
-          gzip -c format.diff | base64 -w0; echo
-          echo "=== END FORMAT ==="
-      - name: svelte-check
-        run: npx svelte-check --tsconfig ./tsconfig.json --output human 2>&1 | tail -80 || true
-      - name: eslint
-        run: npx eslint . 2>&1 | tail -80 || true
-      - name: vitest
-        run: npx vitest run 2>&1 | tail -60 || true
-      - name: build
-        run: BASE_PATH=/unovis npx vite build 2>&1 | tail -40 || true
-      - name: lockfile
-        run: |
-          echo "=== LOCK (base64 gzip) ==="
-          gzip -c package-lock.json | base64 -w0; echo
-          echo "=== END LOCK ==="
+      - run: bash .github/probe/run.sh
+      - run: python3 .github/probe/emit.py install.txt sync.txt prettier.txt check.txt
+      - run: python3 .github/probe/emit.py eslint.txt test.txt build.txt buildls.txt
+      - run: python3 .github/probe/emit.py format.diff
+      - run: python3 .github/probe/emit.py package-lock.json
