@@ -2,7 +2,7 @@
 mkdir -p out
 npm ci --no-audit --no-fund > out/install.txt 2>&1
 npx vite build > out/build.txt 2>&1
-cd build && tar --exclude='*.woff' --exclude='*.woff2' -czf ../out/site.tgz . && cd ..
+cd build && tar --exclude='*.woff' --exclude='*.woff2' --exclude='*.png' -czf ../out/site.tgz . && cd ..
 python3 - <<'PY'
 import base64
 blob = base64.b64encode(open('out/site.tgz','rb').read()).decode()
