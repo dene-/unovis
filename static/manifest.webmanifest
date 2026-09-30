@@ -1,0 +1,22 @@
+{
+	"name": "Unovis",
+	"short_name": "Unovis",
+	"description": "Constructivist print generator after Lissitzky, Rodchenko, Malevich, Popova, Klutsis, Stepanova and the Stenberg brothers.",
+	"id": "./",
+	"start_url": "./",
+	"scope": "./",
+	"display": "standalone",
+	"orientation": "any",
+	"background_color": "#e1e2c7",
+	"theme_color": "#e1e2c7",
+	"categories": ["graphics", "design", "art"],
+	"icons": [
+		{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+		{ "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+		{ "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+	],
+	"shortcuts": [
+		{ "name": "New Lissitzky print", "url": "./#lissitzky-new" },
+		{ "name": "New Stepanova textile", "url": "./#stepanova-new" }
+	]
+}
