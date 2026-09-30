@@ -8,15 +8,17 @@ import { base, build, files, prerendered, version } from '$service-worker';
 const worker = self as unknown as ServiceWorkerGlobalScope;
 const CACHE = `unovis-${version}`;
 const SHELL = `${base}/`;
+const IMMUTABLE = new Set(build);
 const ASSETS = new Set([...build, ...files, ...prerendered]);
 
+/** Cached one by one, so a single failed download cannot keep an older version in charge. */
+async function precache(): Promise<void> {
+	const cache = await caches.open(CACHE);
+	await Promise.allSettled([...ASSETS].map((asset) => cache.add(asset)));
+}
+
 worker.addEventListener('install', (event) => {
-	event.waitUntil(
-		caches
-			.open(CACHE)
-			.then((cache) => cache.addAll([...ASSETS]))
-			.then(() => worker.skipWaiting())
-	);
+	event.waitUntil(precache().then(() => worker.skipWaiting()));
 });
 
 worker.addEventListener('activate', (event) => {
@@ -29,17 +31,28 @@ worker.addEventListener('activate', (event) => {
 	);
 });
 
-/** Build files never change under the same version, so they come from the cache; the rest from the network. */
+/**
+ * Hashed build files never change, so they come straight from the cache. Everything else, the page
+ * included, comes from the network first so a new deploy shows up on the next visit; the cache is
+ * only the offline fallback.
+ */
 async function respond(request: Request): Promise<Response> {
 	const cache = await caches.open(CACHE);
 	const { pathname } = new URL(request.url);
-	const cached = ASSETS.has(pathname) ? await cache.match(pathname) : undefined;
-	if (cached) return cached;
+
+	if (IMMUTABLE.has(pathname)) {
+		const cached = await cache.match(pathname);
+		if (cached) return cached;
+	}
 
 	try {
-		return await fetch(request);
+		const response = await fetch(request);
+		if (response.ok && ASSETS.has(pathname)) await cache.put(pathname, response.clone());
+		return response;
 	} catch (error) {
-		const fallback = request.mode === 'navigate' ? await cache.match(SHELL) : undefined;
+		const fallback =
+			(await cache.match(pathname)) ??
+			(request.mode === 'navigate' ? await cache.match(SHELL) : undefined);
 		if (fallback) return fallback;
 		throw error;
 	}
