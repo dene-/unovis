@@ -9,9 +9,10 @@
 		drawing: ArtistId;
 		previews: Record<ArtistChoice, string> | null;
 		onselect: (choice: ArtistChoice) => void;
+		strip?: boolean;
 	}
 
-	let { value, drawing, previews, onselect }: Props = $props();
+	let { value, drawing, previews, onselect, strip = false }: Props = $props();
 
 	const choices: ArtistChoice[] = [...ARTIST_IDS, 'any'];
 	const artist = $derived(ARTISTS[drawing]);
@@ -22,6 +23,7 @@
 	{choices}
 	{value}
 	columns={4}
+	{strip}
 	{onselect}
 	caption={(choice) => (choice === 'any' ? 'Any artist' : ARTISTS[choice].shortName)}
 >

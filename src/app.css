@@ -158,3 +158,10 @@ img {
 		animation: none !important;
 	}
 }
+
+.section {
+	display: grid;
+	gap: 10px;
+	padding: 16px 20px;
+	border-bottom: 1px solid color-mix(in srgb, var(--rule) 30%, transparent);
+}
