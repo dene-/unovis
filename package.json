@@ -5,7 +5,7 @@
 	"private": true,
 	"type": "module",
 	"engines": {
-		"node": ">=22"
+		"node": ">=24"
 	},
 	"scripts": {
 		"dev": "vite dev",
@@ -25,6 +25,7 @@
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.70.3",
 		"@sveltejs/vite-plugin-svelte": "^7.3.1",
+		"@types/node": "^24.0.0",
 		"eslint": "^10.4.1",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.19.0",

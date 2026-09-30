@@ -89,8 +89,10 @@
 <div class="frame">
 	<canvas
 		bind:this={canvas}
-		role="img"
-		aria-label={label}
+		role="button"
+		tabindex="0"
+		aria-label="{label}. Tap for a new print, swipe to move through this session."
+		onkeydown={(event) => event.key === 'Enter' && ontap()}
 		{@attach swipe({
 			canGoBack: () => canGoBack,
 			reducedMotion: () => reducedMotion,

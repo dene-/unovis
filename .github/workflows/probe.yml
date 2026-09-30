@@ -12,10 +12,10 @@ jobs:
           node-version: 24
       - run: bash .github/probe/run.sh
       - if: always()
-        run: python3 .github/probe/emit.py install.txt npmlog.txt sync.txt prettier.txt check.txt
+        run: python3 .github/probe/emit.py install.txt prettier.txt check.txt eslint.txt prettiercheck.txt
       - if: always()
-        run: python3 .github/probe/emit.py eslint.txt test.txt build.txt buildls.txt
+        run: python3 .github/probe/emit.py test.txt build.txt
       - if: always()
-        run: python3 .github/probe/emit.py format.diff
+        run: python3 .github/probe/emit.py formatted.tgz
       - if: always()
         run: python3 .github/probe/emit.py package-lock.json

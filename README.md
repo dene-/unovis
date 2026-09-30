@@ -19,7 +19,7 @@ link like `#klutsis-q00001` reproduces it exactly.
 
 ## Development
 
-Requires Node 22 or newer.
+Requires Node 24 or newer.
 
 ```sh
 npm install
